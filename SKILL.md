@@ -10,7 +10,7 @@ This skill produces premium, conversion-optimized frontend interfaces. Every out
 
 ---
 
-## 1. Design DNA — 7 Universal Principles
+## 1. Design DNA — 8 Universal Principles
 
 These are non-negotiable. Every decision filters through them.
 
@@ -54,6 +54,33 @@ Beautiful animations are worthless if users bounce. Hard targets:
 - Only animate `transform`/`opacity` (GPU composited)
 - Canvas paused off-screen, particles reduced on mobile
 - Glass elements capped (max 5)
+
+### Principle 8: Readability First — Decoration Never Defeats Text
+
+This is foundational. No animation, particle effect, background visual, or decorative element may compromise text readability. Ever.
+
+**Rules:**
+- **Text zones get opaque or near-opaque backgrounds.** If a section has body text, stats, cards, or any content meant to be read, the background behind it must provide sufficient contrast. Semi-transparent scrims (rgba with 0.85-0.95 opacity) let subtle depth peek through while keeping text crisp.
+- **Decoration-only zones can be transparent.** Hero sections where the animation IS the visual, or CTA sections with only large bold headings, can let effects show through. But even here, heading text must have enough size/weight to remain readable.
+- **Never match decoration color to text color.** Teal particles behind teal text = unreadable. Red particles behind red text = unreadable. If the animation color matches the text color in a section, either change the animation color, add a scrim, or make the section opaque.
+- **Small text (< 18px) gets full protection.** Body copy, descriptions, labels, and footer links must NEVER compete with background animations. Only large headings (32px+, bold weight) can coexist with active backgrounds.
+- **Test with screenshots, not assumptions.** Always capture and visually inspect the actual rendered page. Text that looks fine in code can be invisible when particles, gradients, or effects overlap in the browser.
+
+**Implementation pattern for fixed canvas backgrounds:**
+```css
+/* Sections where the effect IS the content — fully transparent */
+.effect-active .s-hero,
+.effect-active .s-cta {
+  background: transparent !important;
+}
+
+/* Content sections — near-opaque scrim preserves readability */
+.effect-active .s-content,
+.effect-active .s-features,
+.effect-active .s-testimonials {
+  background: rgba(8, 8, 12, 0.92) !important;
+}
+```
 
 ### Color Theme — OPEN
 
@@ -260,6 +287,12 @@ Each step depends on the previous. Camera MUST come after particles (it calls pa
 - Browsers (especially automation/headless) often have `prefers-reduced-motion: reduce` enabled by default.
 - The reduced-motion branch runs BEFORE the normal animation path and returns early.
 - Ensure the reduced-motion branch also handles Three.js init (body class, single-frame render).
+- **Windows/Chrome gotcha**: Chrome on Windows maps the Win32 `SPI_GETANIMATION.iMinAnimate` flag to `prefers-reduced-motion: reduce`. Many users disable Windows animations for performance without realizing it kills ALL web animations (GSAP, Three.js, CSS transitions — everything behind a reduced-motion check).
+  - **Diagnose**: In browser console: `matchMedia('(prefers-reduced-motion: reduce)').matches` → if `true`, check Windows setting.
+  - **Check Windows**: PowerShell `Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class AnimInfo{[DllImport("user32.dll")]public static extern bool SystemParametersInfo(uint a,uint b,ref ANIMATIONINFO c,uint d);[StructLayout(LayoutKind.Sequential)]public struct ANIMATIONINFO{public uint cbSize;public int iMinAnimate;}}'; $a=New-Object AnimInfo+ANIMATIONINFO; $a.cbSize=8; [AnimInfo]::SystemParametersInfo(0x0048,0,[ref]$a,0); $a.iMinAnimate` → `0` means animations disabled.
+  - **Fix**: Set `iMinAnimate = 1` via `SystemParametersInfo(0x0049, ...)` and restart Chrome (it caches the media query at launch).
+  - **Immediate override (no restart)**: Use CDP `Emulation.setEmulatedMedia` with `features: [{name: 'prefers-reduced-motion', value: 'no-preference'}]` to override for the current session.
+  - **Testing implication**: Always verify `prefers-reduced-motion` status before concluding animations are broken. A "no animations visible" bug is often this flag, not a code issue.
 
 ### Fallback Pattern
 ```js
