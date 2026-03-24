@@ -72,9 +72,11 @@ No phase may be skipped. No output delivered without Phase 6.
 ```
 Phase 1: UNDERSTAND
   Read brief → identify brand maturity → select conversion style → commit to design direction
+  Read upstream/ui-ux-pro-max/ for industry-specific style guidance (67 UI styles, 161 industry rules)
 
 Phase 2: DESIGN SYSTEM
   Read references/design-system-generator.md → generate tokens (fonts, colors, spacing, radii, shadows)
+  Cross-reference upstream/ui-ux-pro-max/ for color palettes (161) and font pairings (57)
 
 Phase 3: STRUCTURE
   Select conversion style → Read references/conversion-framework.md
