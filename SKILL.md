@@ -24,7 +24,7 @@ Every visual decision has a conversion implication. Scroll-triggered value stack
 
 ### Principle 3: Motion-Rich
 
-Static is dead. Every section has scroll-triggered GSAP animation. Lenis smooth scroll is mandatory. BarbaJS page transitions when multi-page. Every animation has PURPOSE: reveal, guide, confirm, or delight. No gratuitous motion.
+Static is dead. Every section has scroll-triggered GSAP animation. Lenis smooth scroll is recommended for continuous-scroll pages (NOT for snap-section pages — see Scroll Snap section). BarbaJS page transitions when multi-page. Every animation has PURPOSE: reveal, guide, confirm, or delight. No gratuitous motion.
 
 ### Principle 4: Distinctive
 
@@ -261,12 +261,31 @@ When adding Three.js for 3D particle effects, shader-based morphing, or camera c
 - **cdnjs uses `rXXX` versioning** (e.g., `r169`) but many versions 404. jsdelivr is more reliable for Three.js.
 - Always add `onerror="window._threeLoadFailed=true"` on the script tag for graceful fallback.
 
-### Fixed Canvas Behind DOM Content
-- Three.js canvas is typically `position: fixed; inset: 0; z-index: 0; pointer-events: none !important`
-- **CRITICAL: Opaque section backgrounds will cover the canvas.** Sections default to `background: var(--bg-primary)` which is solid color.
-- Solution: Add a body class (e.g., `.mantis-3d-active`) when Three.js initializes, then CSS: `.mantis-3d-active section { background: transparent !important; }`
-- The body keeps its dark background. Section `::before` gradient overlays remain (absolute positioned, unaffected).
-- Remove the body class in `.catch()` fallback so 2D canvas mode keeps opaque backgrounds.
+### Canvas Placement — Two Approaches
+
+**Approach 1: Two-Column Layout (PREFERRED for section-based pages)**
+- Text in left column (55%), Three.js canvas in right column (45%)
+- Canvas container is `position: sticky; top: 0; height: 100svh` — stays visible while text scrolls
+- Animations are BESIDE text, never behind it — zero readability conflicts
+- Per-section 3D objects morph/transition as user scrolls between sections
+- Mobile: stacks vertically — animation above text at ~40vh height
+```css
+/* WHY: Two-column separates animation from text — no readability conflicts */
+section { display: grid; grid-template-columns: 55% 45%; min-height: 100svh; }
+.section-visual { position: sticky; top: 0; height: 100svh; }
+@media (max-width: 768px) {
+  section { grid-template-columns: 1fr; }
+  .section-visual { position: relative; height: 40svh; }
+}
+```
+
+**Approach 2: Fixed Canvas Behind DOM (fallback for continuous-scroll pages)**
+- Three.js canvas is `position: fixed; inset: 0; z-index: 0; pointer-events: none !important`
+- **CRITICAL: Opaque section backgrounds will cover the canvas.** Use selective transparency:
+  - Decoration-only sections (hero, CTA): `background: transparent`
+  - Content sections: `background: rgba(8, 8, 12, 0.92)` — near-opaque scrim
+- **NEVER make ALL sections transparent** — particles behind text = unreadable
+- Remove transparency in `.catch()` fallback so 2D canvas mode keeps opaque backgrounds.
 
 ### Render Loop Must Be Explicitly Started
 - `MantisScene.init()` creates scene/camera/renderer but does NOT start the rAF loop.
@@ -318,6 +337,51 @@ try {
 
 ---
 
+## 6c. Scroll Snap — Implementation Guide
+
+### When to Use Snap
+- Full-viewport section-based pages (landing pages, presentations, product showcases)
+- NOT for long-form content, blogs, or pages with variable-height sections
+
+### CSS Scroll Snap (ALWAYS use this — not GSAP snap)
+```css
+/* WHY: CSS scroll-snap is native, works on all browsers, and avoids
+   conflicts with smooth scroll libraries. GSAP ScrollTrigger snap has
+   known bidirectional issues with Lenis (GitHub: darkroomengineering/lenis#389) */
+html {
+  scroll-snap-type: y mandatory;
+}
+section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always; /* WHY: prevents skipping sections on fast swipe */
+  min-height: 100svh; /* WHY: svh accounts for mobile browser chrome, vh does not */
+}
+```
+
+### Lenis Compatibility — CRITICAL WARNING
+- **Lenis smooth scroll BREAKS CSS scroll-snap.** Lenis overrides native scroll behavior, making snap points unreliable.
+- **GSAP ScrollTrigger snap + Lenis has known issues** — scrolling up to previous snap point is nearly impossible ([GitHub #389](https://github.com/darkroomengineering/lenis/issues/389)).
+- **The `lenis/snap` package has the reverse problem** — scrolling down becomes difficult.
+- **Solution**: For snap-section pages, **do NOT use Lenis**. Use native scroll + CSS snap. GSAP ScrollTrigger still works without Lenis for entrance animations (`onEnter`, `onLeave` callbacks).
+- **Lenis is still great for** continuous-scroll pages WITHOUT snap (portfolios, editorial sites, product detail pages).
+
+### Section Height Contract
+- Every section MUST fit within one viewport height at ALL breakpoints
+- Use `100svh` not `100vh` — `svh` (small viewport height) accounts for mobile browser chrome
+- If ANY section's content exceeds viewport → either reduce content or set `scroll-snap-align: none` on that section
+- Test at: 1920x1080 (desktop), 768x1024 (tablet), 375x812 (iPhone), 360x668 (worst-case Android)
+- **GSAP pin is INCOMPATIBLE with snap** — pinned sections consume extra scroll distance, breaking snap calculations. Remove ALL pins when using snap.
+
+### Per-Section 3D Object Transitions (with snap)
+When combining Three.js with CSS snap:
+- Use `IntersectionObserver` (not ScrollTrigger `scrub`) to detect which section is active
+- On section enter: morph 3D object to that section's shape using GSAP tween
+- Kill any in-progress morph tween before starting a new one (`gsap.killTweensOf(...)`)
+- Dual-buffer morph: keep two shape arrays (`aFrom` + `aTo`), interpolate via shader uniform
+- This avoids storing all shapes as GPU attributes — only two in memory at once
+
+---
+
 ## 7. Self-Review Quality Gate — 24 Points (MANDATORY)
 
 All 24 must pass BEFORE showing ANY output to the user:
@@ -327,7 +391,7 @@ All 24 must pass BEFORE showing ANY output to the user:
 [ ] COLOR      — Unexpected palette? NOT default template colors?
 [ ] THEME      — Intentional choice (dark/light/custom) appropriate for project?
 [ ] GSAP       — Every section has scroll-triggered animation?
-[ ] LENIS      — Smooth scroll initialized with GSAP sync? Anchor link handler with lenis.scrollTo() for all a[href^="#"]? Mobile fallback to scrollIntoView?
+[ ] SCROLL     — If snap page: CSS scroll-snap-type mandatory, NO Lenis (conflicts — see 6c). If continuous-scroll page: Lenis initialized with GSAP sync, anchors use lenis.scrollTo().
 [ ] CONVERSION — Page follows chosen conversion style? (Hormozi 9-section DEFAULT)
 [ ] COPY       — Clear, specific, no hedging? Hormozi clarity applies to ALL styles?
 [ ] CTA        — Primary CTA above fold at desktop (1280x800) AND highest contrast element?
@@ -343,6 +407,7 @@ All 24 must pass BEFORE showing ANY output to the user:
 [ ] WORDWRAP   — All headings use overflow-wrap: normal? No heading allows break-word or break-all?
 [ ] DEPTH      — At least 3 visual layers visible (gradient + texture + content separation)?
 [ ] SNAP-FEEL  — Snap duration max >= 2s? Delay present? Directional enabled?
+[ ] SNAP-WORKS — Actually scroll page and verify snap catches each section. Test BOTH directions (down AND up). No Lenis if CSS snap enabled (conflicts — see 6c). Every section fits 100svh at ALL breakpoints?
 [ ] VARIETY    — At least 3 DIFFERENT entrance animation types used across sections?
 [ ] STATS-VERIFIED — All numbers/stats on page verified against actual source data?
 [ ] LINKS-WORK — Every link on page points to a real destination (no dead href="#")?
