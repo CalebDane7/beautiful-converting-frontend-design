@@ -1,0 +1,82 @@
+# WHY: Auto-syncs UI UX Pro Max skill content from upstream repo.
+# Without this, the user would need to manually run git subtree pull
+# to get upstream updates. This workflow checks daily and auto-merges.
+name: Sync Upstream UI UX Pro Max
+
+on:
+  schedule:
+    # WHY: Daily at 9 AM UTC — frequent enough to stay current,
+    # infrequent enough to not waste Actions minutes
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-upstream:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          # WHY: Full history needed for git subtree operations
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git 2>/dev/null || true
+          git fetch upstream main
+
+      - name: Check for changes
+        id: check
+        run: |
+          # WHY: Compare upstream HEAD against what we last merged.
+          # git subtree pull will no-op if already up to date, but
+          # checking first avoids noisy empty commits.
+          UPSTREAM_SHA=$(git rev-parse upstream/main)
+          echo "upstream_sha=$UPSTREAM_SHA" >> $GITHUB_OUTPUT
+
+          # Try the subtree pull in dry-run mode by checking merge base
+          MERGE_BASE=$(git merge-base HEAD upstream/main 2>/dev/null || echo "none")
+          if [ "$MERGE_BASE" = "$(git rev-parse upstream/main)" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pull upstream changes
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          git subtree pull \
+            --prefix upstream/ui-ux-pro-max \
+            upstream main \
+            --squash \
+            -m "chore: sync upstream ui-ux-pro-max-skill (${{ steps.check.outputs.upstream_sha }})"
+
+      - name: Push changes
+        if: steps.check.outputs.has_changes == 'true'
+        run: git push origin main
+
+      # WHY: If sync fails (merge conflict, upstream restructure),
+      # create a GitHub Issue so the user is notified instead of
+      # the failure being silently buried in Actions logs.
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Upstream sync failed',
+              body: `The automatic sync from \`nextlevelbuilder/ui-ux-pro-max-skill\` failed.\n\nRun ID: ${context.runId}\nUpstream SHA: ${{ steps.check.outputs.upstream_sha }}\n\nCheck the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.\n\nTo resolve manually:\n\`\`\`bash\ncd ~/.claude/skills/beautiful-converting-frontend-design\ngit subtree pull --prefix upstream/ui-ux-pro-max https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git main --squash\n\`\`\``,
+              labels: ['automation', 'upstream-sync']
+            });
