@@ -223,6 +223,68 @@ Before any code, commit to a direction:
 
 ---
 
+## 6b. Three.js Integration Patterns (Lessons Learned)
+
+When adding Three.js for 3D particle effects, shader-based morphing, or camera choreography:
+
+### CDN Version Selection
+- **Three.js dropped UMD builds after v0.160.** Versions 0.161+ only ship ES module builds (`three.module.min.js`).
+- If using global `THREE` variable (no bundler), pin to `three@0.160.0` on jsdelivr: `https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js`
+- If using ES modules / import maps, use latest version with `three.module.min.js`
+- **cdnjs uses `rXXX` versioning** (e.g., `r169`) but many versions 404. jsdelivr is more reliable for Three.js.
+- Always add `onerror="window._threeLoadFailed=true"` on the script tag for graceful fallback.
+
+### Fixed Canvas Behind DOM Content
+- Three.js canvas is typically `position: fixed; inset: 0; z-index: 0; pointer-events: none !important`
+- **CRITICAL: Opaque section backgrounds will cover the canvas.** Sections default to `background: var(--bg-primary)` which is solid color.
+- Solution: Add a body class (e.g., `.mantis-3d-active`) when Three.js initializes, then CSS: `.mantis-3d-active section { background: transparent !important; }`
+- The body keeps its dark background. Section `::before` gradient overlays remain (absolute positioned, unaffected).
+- Remove the body class in `.catch()` fallback so 2D canvas mode keeps opaque backgrounds.
+
+### Render Loop Must Be Explicitly Started
+- `MantisScene.init()` creates scene/camera/renderer but does NOT start the rAF loop.
+- `MantisParticles.init()` loads shaders and creates geometry but does NOT render.
+- You MUST call `MantisScene.render()` (or equivalent) after all setup completes to start `requestAnimationFrame`.
+- For reduced-motion: do a single `renderer.render(scene, camera)` instead of starting the loop.
+
+### Initialization Chain
+```
+MantisScene.init()          → returns true/false (sync)
+  └→ MantisParticles.init() → returns Promise (async shader load)
+       └→ MantisCamera.setup()  → void (creates ScrollTriggers)
+            └→ MantisScene.render()  → starts rAF loop
+```
+Each step depends on the previous. Camera MUST come after particles (it calls particle methods). Render MUST come last.
+
+### prefers-reduced-motion
+- Browsers (especially automation/headless) often have `prefers-reduced-motion: reduce` enabled by default.
+- The reduced-motion branch runs BEFORE the normal animation path and returns early.
+- Ensure the reduced-motion branch also handles Three.js init (body class, single-frame render).
+
+### Fallback Pattern
+```js
+try {
+  if (!window._threeLoadFailed && typeof MantisScene !== 'undefined' && MantisScene.init()) {
+    document.body.classList.add('mantis-3d-active');
+    MantisParticles.init().then(function() {
+      MantisCamera.setup();
+      MantisScene.render();
+    }).catch(function() {
+      document.body.classList.remove('mantis-3d-active');
+      MantisScene.dispose();
+      initCanvases(); // 2D fallback
+    });
+  } else {
+    initCanvases(); // 2D fallback
+  }
+} catch (e) {
+  console.warn('[MANTIS] 3D init failed, using 2D fallback', e);
+  initCanvases();
+}
+```
+
+---
+
 ## 7. Self-Review Quality Gate — 24 Points (MANDATORY)
 
 All 24 must pass BEFORE showing ANY output to the user:
