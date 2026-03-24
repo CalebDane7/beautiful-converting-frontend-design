@@ -57,6 +57,9 @@ lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add(function(time) { lenis.raf(time * 1000); });
 gsap.ticker.lagSmoothing(0);
 
+// ⚠️ MANDATORY — Lenis intercepts native scroll. Without this handler,
+// ALL anchor links (href="#section") will silently fail. This is the #1
+// Lenis integration bug. Always include when using Lenis.
 // Anchor scroll with nav offset
 document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
   anchor.addEventListener('click', function(e) {
@@ -1166,3 +1169,116 @@ if (needsUpdate) {
 This throttles React renders to ~2-5/sec instead of 60/sec while the RAF loop
 continues updating chart viewport and primitives at full 60fps via direct
 Lightweight Charts API calls (no React involvement).
+
+---
+
+## Premium Snap Scrolling
+
+### GSAP ScrollTrigger Snap — Premium Configuration
+
+Default snap config feels mechanical. Premium sites use these parameters:
+
+```js
+// PREMIUM snap config (Awwwards-quality)
+ScrollTrigger.create({
+  snap: {
+    snapTo: 1 / (sectionCount - 1),
+    duration: { min: 0.25, max: 2.5 },   // NOT 0.6 — premium uses 2-3s for large scrolls
+    ease: 'power1.inOut',                  // Sophisticated, not generic power2
+    delay: 0.2,                            // Breathing room — don't snap instantly
+    directional: true                      // Respect scroll direction
+  }
+});
+```
+
+**Why each parameter matters:**
+- `duration.max: 2.5` — Long scrolls (3+ sections) animate slowly and elegantly. 0.6s feels cheap.
+- `delay: 0.2` — User can pause on a section without being yanked. Removes "forced" feeling.
+- `directional: true` — Snap always goes in the direction the user scrolled. Never snaps backward.
+- `ease: 'power1.inOut'` — Sophisticated and smooth. `power2` is generic. `power3` is too punchy for snap.
+
+### Lenis + GSAP Snap Coexistence
+
+Lenis smooth scroll and GSAP snap fight for control. Fix:
+
+```js
+// Lower lerp so Lenis settles faster before snap triggers
+var lenis = new Lenis({
+  lerp: 0.07,        // NOT 0.1 — less aggressive, settles before snap
+  smoothWheel: true
+});
+```
+
+The `delay: 0.2` on snap gives Lenis time to settle. Without delay, Lenis momentum + snap = mushy.
+
+### Mobile Snap
+
+NEVER use `mandatory` on mobile — it prevents users from reading content:
+
+```css
+@media (max-width: 768px) {
+  body {
+    scroll-snap-type: y proximity;  /* NOT mandatory */
+  }
+}
+```
+
+`proximity` snaps when close to a section boundary, but lets users scroll freely through content.
+
+### Dead Zone
+
+With 8 sections, `snapTo: 1/7 = 0.143` (14.3%). This means one flick scrolls past sections. For premium feel, the snap tolerance should require ~20-30% scroll commitment before triggering.
+
+---
+
+## Micro-Interactions
+
+### Button Hover (lift + glow)
+```css
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(accent, 0.25);
+}
+```
+
+### Card Hover (lift + border shift)
+```css
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(accent, 0.15);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+}
+```
+
+### CTA Idle Pulse (subtle breathing)
+```css
+.btn-primary.pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(accent, 0.15); }
+  50% { box-shadow: 0 0 40px rgba(accent, 0.3); }
+}
+```
+
+### Magnetic CTA (desktop only)
+```js
+// Button pulls toward cursor within 60px radius
+document.querySelectorAll('.btn-primary').forEach(function(btn) {
+  btn.addEventListener('mousemove', function(e) {
+    var rect = btn.getBoundingClientRect();
+    var x = e.clientX - rect.left - rect.width / 2;
+    var y = e.clientY - rect.top - rect.height / 2;
+    gsap.to(btn, {
+      x: x * 0.3,
+      y: y * 0.3,
+      duration: 0.3,
+      ease: 'power2.out'
+    });
+  });
+  btn.addEventListener('mouseleave', function() {
+    gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' });
+  });
+});
+```

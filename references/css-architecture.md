@@ -301,7 +301,9 @@ Blobs: `position: absolute; border-radius: 50%; filter: blur(80px); animation: a
 
 ---
 
-## 11. Responsive Breakpoints (Mobile-First)
+## 11. Responsive & Section Architecture
+
+### Breakpoints (Mobile-First)
 
 ```css
 /* Base = mobile */
@@ -310,4 +312,59 @@ Blobs: `position: absolute; border-radius: 50%; filter: blur(80px); animation: a
 @media (min-width: 1440px) { /* Wide: max container, larger spacing */ }
 ```
 
-Mobile adjustments: Reduce particles (60 to 30), remove cursor effects, simplify glass, stack grids, 44px touch targets.
+### Universal Patterns (ALL Viewports)
+
+These apply to desktop, tablet, AND mobile — not just phones:
+
+```css
+/* Section-based scroll architecture */
+html {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+
+section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: 100vh; /* Fallback */
+  min-height: 100svh; /* Safe: accounts for browser chrome */
+}
+
+/* Nav-height subtraction (fixed/sticky nav) */
+:root { --nav-height: 60px; }
+.hero { min-height: calc(100vh - var(--nav-height)); min-height: calc(100svh - var(--nav-height)); }
+```
+
+- **`svh` > `vh`**: `100vh` overflows when mobile browser chrome is visible. `100svh` = small viewport (safe). Always use `100vh` fallback + `100svh` override.
+- **Scroll-snap**: ensures user NEVER sees a half-section on ANY device.
+- **CTA above fold**: primary CTA must be visible without scrolling at ALL viewports, including worst-case 360x668 (Android + Chrome bars).
+- **Section content must fit viewport**: each section designed to fit one viewport height. Use `min-height` (not fixed `height`) so sections CAN expand.
+
+### Mobile-Specific Patterns (<768px)
+
+```css
+/* Disable CSS snap on desktop (GSAP handles it), enable on mobile */
+@media (min-width: 769px) {
+  html { scroll-snap-type: none; }
+}
+
+@media (max-width: 767px) {
+  .features-grid { grid-template-columns: 1fr; }
+}
+
+@media (hover: hover) {
+  .cursor-follower { display: block; }
+}
+```
+
+- Reduce particles: 60 → 25 max
+- Remove cursor effects: `@media (hover: hover)` gate
+- Simplify glass: max 3 elements on mobile
+- Stack grids: single column below 412px
+- Touch targets: 44px minimum
+- Disable Lenis on mobile (incompatible with CSS scroll-snap)
+- Disable GSAP `snap` on mobile (CSS scroll-snap handles it on compositor thread)
+- Safe area insets: `viewport-fit=cover` meta + `env(safe-area-inset-*)` padding
+
+**Deep detail**: See `references/responsive-sections.md` for 15-section comprehensive guide covering GSAP+snap conflict resolution, nav-height subtraction, anchor-snap alignment, landscape degradation, and `prefers-reduced-motion`.

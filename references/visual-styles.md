@@ -1370,3 +1370,85 @@ Putting it all together -- the layered approach for a luxury hero section:
   margin-bottom: 3rem;
 }
 ```
+
+---
+
+## Depth & Dimension System
+
+### The 5-Layer Model
+
+Premium sites create depth through layering, not flatness. Every section should have at least 3 of these 5 layers:
+
+```
+Layer 1 (furthest):  Background gradient (radial glow, subtle color)
+Layer 2:             Grain/texture overlay (SVG noise at 3-5% opacity)
+Layer 3:             Geometric canvas / particles (Canvas2D or WebGL)
+Layer 4:             Content (text, cards, terminals)
+Layer 5 (nearest):   Foreground glow (cursor glow, selective element glow)
+```
+
+### Mouse-Parallax Per Layer
+
+Each layer moves at a different speed on mouse movement, creating depth illusion:
+
+```js
+// Desktop only — layers move at different speeds
+document.addEventListener('mousemove', function(e) {
+  var x = (e.clientX / window.innerWidth - 0.5) * 2;  // -1 to 1
+  var y = (e.clientY / window.innerHeight - 0.5) * 2;
+
+  // Background moves SLOW (far away)
+  gsap.to('.bg-gradient', { x: x * 5, y: y * 5, duration: 1.2, ease: 'power2.out' });
+  // Canvas moves MEDIUM
+  gsap.to('.geo-canvas', { x: x * 10, y: y * 10, duration: 0.8, ease: 'power2.out' });
+  // Content stays FIXED (anchor point)
+  // Foreground glow moves FAST (close to viewer)
+  gsap.to('.cursor-glow', { x: e.clientX, y: e.clientY, duration: 0.15 });
+});
+```
+
+### Scroll-Linked Parallax Within Sections
+
+Hero content moves up on scroll while background stays, creating depth:
+
+```js
+gsap.to('.hero-content', {
+  yPercent: -15,
+  ease: 'none',
+  scrollTrigger: {
+    trigger: '#hero',
+    start: 'top top',
+    end: 'bottom top',
+    scrub: 1.5
+  }
+});
+```
+
+### Color Temperature for Depth
+- **Warm colors advance** (teal glow, white text — feels close)
+- **Cool colors recede** (muted gray, dark surfaces — feels far)
+- Use this to make CTAs "pop forward" and backgrounds "sink back"
+
+### Selective Glow Elevation
+Only 2-3 elements per section should glow. Everything else stays flat. This creates hierarchy:
+- CTA button: `box-shadow: 0 0 40px rgba(accent, 0.25)`
+- Key stat number: `text-shadow: 0 0 30px rgba(accent, 0.3)`
+- Everything else: no glow
+
+### Linear/Stripe Gradient Mesh Technique
+Animate the radial gradient position on scroll for living backgrounds:
+
+```js
+gsap.to('.section::before', {
+  '--glow-x': '60%',  // Shift gradient center
+  '--glow-y': '40%',
+  ease: 'none',
+  scrollTrigger: {
+    trigger: '.section',
+    start: 'top bottom',
+    end: 'bottom top',
+    scrub: 2
+  }
+});
+```
+```

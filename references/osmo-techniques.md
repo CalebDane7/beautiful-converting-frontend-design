@@ -471,3 +471,72 @@ if (!prefersReducedMotion) {
   // Initialize all OSMO-level animations here
 }
 ```
+
+---
+
+## Animation Choreography
+
+### Section Entrance Orchestration
+
+Never animate all elements simultaneously. Stagger creates rhythm:
+
+```
+Timeline:
+  0.00s  — Headline fades in (or char reveal)
+  0.15s  — Subtext/description appears
+  0.30s  — Visual element (terminal, diagram, cards)
+  0.45s  — CTA or secondary elements
+  0.60s  — Decorative details (badges, stats)
+```
+
+```js
+var sectionTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: '#section',
+    start: 'top 70%',
+    once: true
+  }
+});
+
+sectionTl
+  .to('.headline', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' })
+  .to('.subtext', { opacity: 1, y: 0, duration: 0.5 }, '-=0.35')
+  .to('.visual', { opacity: 1, y: 0, duration: 0.6 }, '-=0.3')
+  .to('.cta', { opacity: 1, y: 0, duration: 0.4 }, '-=0.25');
+```
+
+### Easing Psychology
+
+| Easing | Feel | Use for |
+|--------|------|---------|
+| `power1.inOut` | Sophisticated, smooth | Snap scrolling, section transitions |
+| `power2.out` | Balanced, natural | Entrance animations, fade-ups |
+| `power3.out` | Dynamic, punchy | Counter animations, stat reveals |
+| `elastic.out(1, 0.3)` | Playful, springy | Magnetic buttons, hover returns |
+| `back.out(1.7)` | Dramatic, overshooting | Modal entrances, special reveals |
+| `none` | Linear, mechanical | Scroll-linked (scrub), progress bars |
+
+**Rule:** Use `power2.out` as default. Only deviate with intention.
+
+### Per-Section Animation VARIETY
+
+**NEVER use the same animation for every section.** This is the #1 sign of generic AI output.
+
+| Section Type | Animation | Why |
+|-------------|-----------|-----|
+| Hero | SplitText char reveal | Premium, memorable |
+| Pain/Problem | Slide from LEFT | Feels like items arriving, building pressure |
+| Demo/Product | Fade + scale (0.95→1) | Draws focus inward |
+| Stats | Scale up (0.85→1) + counter | Numbers feel earned |
+| Gates/Features | Alternate left/right slide | Creates visual rhythm |
+| Testimonials | Stagger with slight rotation | Cards fan out like a hand |
+| Origin/Story | Simple fade only | Text-focused, no distraction |
+| CTA | Fade + pulse glow | Draws eye to action |
+
+### Connection Between Sections
+
+The best pages feel like ONE continuous experience. Techniques:
+- Progress bar that fills as you scroll (scrub-linked)
+- Color temperature that shifts section-to-section (warm → cool → warm)
+- Consistent accent color that appears in different forms per section
+- Geometric elements that persist across sections (canvas background)

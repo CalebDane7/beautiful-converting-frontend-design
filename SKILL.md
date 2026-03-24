@@ -6,7 +6,7 @@ allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Skill", "Agent
 
 # Beautiful Converting Frontend Design
 
-This skill produces premium, conversion-optimized frontend interfaces. Every output fuses Hormozi conversion architecture with GSAP/Lenis/ScrollTrigger animations, OSMO-level techniques, and cutting-edge visual design. A mandatory 12-point quality gate prevents generic output from ever reaching the user.
+This skill produces premium, conversion-optimized frontend interfaces. Every output fuses Hormozi conversion architecture with GSAP/Lenis/ScrollTrigger animations, OSMO-level techniques, and cutting-edge visual design. A mandatory 24-point quality gate prevents generic output from ever reaching the user.
 
 ---
 
@@ -82,7 +82,7 @@ Phase 3: STRUCTURE
   Build complete page architecture with copy
 
 Phase 4: BUILD
-  Read references/css-architecture.md + references/performance.md + references/visual-styles.md
+  Read references/css-architecture.md + references/performance.md + references/visual-styles.md + references/responsive-sections.md
   Select visual style(s) matching the brand (neumorphism, brutalist, luxury dark, etc.)
   Implement HTML + CSS (zero inline styles)
 
@@ -91,7 +91,7 @@ Phase 5: ANIMATE
   Add GSAP/Lenis/ScrollTrigger animations with purpose
 
 Phase 6: SELF-REVIEW
-  Run 12-point quality gate → fix ALL failures → deliver only when clean
+  Run 24-point quality gate → fix ALL failures → deliver only when clean
 ```
 
 Each phase MUST load its reference files before proceeding.
@@ -221,23 +221,35 @@ Before any code, commit to a direction:
 
 ---
 
-## 7. Self-Review Quality Gate — 12 Points (MANDATORY)
+## 7. Self-Review Quality Gate — 24 Points (MANDATORY)
 
-All 12 must pass BEFORE showing ANY output to the user:
+All 24 must pass BEFORE showing ANY output to the user:
 
 ```
 [ ] FONT       — Distinctive? Would I recognize the brand from the font alone?
 [ ] COLOR      — Unexpected palette? NOT default template colors?
 [ ] THEME      — Intentional choice (dark/light/custom) appropriate for project?
 [ ] GSAP       — Every section has scroll-triggered animation?
-[ ] LENIS      — Smooth scroll initialized with GSAP sync?
+[ ] LENIS      — Smooth scroll initialized with GSAP sync? Anchor link handler with lenis.scrollTo() for all a[href^="#"]? Mobile fallback to scrollIntoView?
 [ ] CONVERSION — Page follows chosen conversion style? (Hormozi 9-section DEFAULT)
 [ ] COPY       — Clear, specific, no hedging? Hormozi clarity applies to ALL styles?
-[ ] CTA        — Primary CTA above fold AND highest contrast element?
+[ ] CTA        — Primary CTA above fold at desktop (1280x800) AND highest contrast element?
 [ ] DEPTH      — At least 2 layers (gradient + grain, glass + glow, shadow + texture)?
 [ ] WOW        — At least one moment that would impress on Awwwards?
 [ ] AI-SMELL   — Would someone identify this as AI-generated? (If yes -> FIX)
 [ ] A11Y       — prefers-reduced-motion? Focus indicators? Semantic HTML?
+[ ] SNAP        — If snap enabled: EVERY section fits within viewport at ALL breakpoints? If ANY section overflows → snap disabled for that section or globally?
+[ ] SECTIONS    — Every section fits within one viewport height at ALL breakpoints (desktop, tablet, Android)?
+[ ] SVH         — Uses svh/min-height with nav-height subtraction (not fixed vh) for full-viewport sections?
+[ ] MOBILE-CTA  — Primary CTA visible without scrolling at 360x668 (worst-case Android with browser chrome)?
+[ ] SAFE-AREA   — viewport-fit=cover meta tag? env(safe-area-inset-*) on container/sticky elements?
+[ ] WORDWRAP   — All headings use overflow-wrap: normal? No heading allows break-word or break-all?
+[ ] DEPTH      — At least 3 visual layers visible (gradient + texture + content separation)?
+[ ] SNAP-FEEL  — Snap duration max >= 2s? Delay present? Directional enabled?
+[ ] VARIETY    — At least 3 DIFFERENT entrance animation types used across sections?
+[ ] STATS-VERIFIED — All numbers/stats on page verified against actual source data?
+[ ] LINKS-WORK — Every link on page points to a real destination (no dead href="#")?
+[ ] ANCHOR-TARGETS — Every href="#id" has a matching id="" element on the page? No orphan anchors?
 ```
 
 If ANY point fails, fix it before delivering. This gate is not optional.
@@ -333,7 +345,7 @@ When this skill activates:
 3. **Select conversion style deliberately.** Hormozi is default, not automatic.
 4. **Build with zero inline CSS.** No exceptions. Ever.
 5. **Animate with purpose.** Every GSAP call has a reason.
-6. **Run the 12-point gate.** Fix failures. Do not deliver until clean.
+6. **Run the 24-point gate.** Fix failures. Do not deliver until clean.
 7. **The output must be distinctive.** If it smells like AI-generated template work, it is not done.
 
 The standard is not "good enough." The standard is "someone screenshots this and shares it."

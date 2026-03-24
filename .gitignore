@@ -1,3 +1,5 @@
 scripts/.ai-controller/
 scripts.jsonl
 scripts.meta.json
+.ai-controller/
+.tldr/
