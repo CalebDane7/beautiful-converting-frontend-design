@@ -1,17 +1,22 @@
-# Responsive Section Architecture (Universal)
+# Responsive Section Architecture (Conditional)
 
-Reference for building section-based pages that snap into full view on ANY device. Every section must fit within one viewport height. The primary CTA must be visible without scrolling on ANY screen size.
+Reference for responsive sections, heroes, and scroll behavior. Scroll snap is a rare choice for low-content slide-like pages; it is not the default architecture for all websites.
+
+Use this file to decide whether a page should use natural scroll, full-viewport sections, proximity snap, mandatory snap, Lenis, ScrollTrigger, or no scroll effects at all.
+
+Default accessibility target: **WCAG 2.2 AA**.
 
 ---
 
-## 1. Viewport Height Units (ALL DEVICES)
+## 1. Viewport Height Units (For Heroes / Full-Viewport Sections)
 
-Every section MUST use the two-line `min-height` pattern: a `100vh` fallback followed by `100svh`. This is non-negotiable.
+Use the two-line `min-height` pattern only for heroes or sections intentionally designed to fill the viewport. Do not force every section to `100svh`; content-heavy sections should use natural height and responsive padding.
 
 On desktop, `svh` equals `vh` because there is no browser chrome that appears/disappears, so the fallback is harmless. On mobile, `100vh` includes the area behind the browser's address bar and bottom toolbar, meaning content overflows the visible area. `100svh` accounts for chrome being visible and gives you the actual usable height.
 
 ```css
-.section {
+.hero,
+.full-viewport-section {
   min-height: 100vh; /* Fallback for older browsers */
   min-height: 100svh; /* Safe: accounts for browser chrome on mobile */
 }
@@ -34,23 +39,58 @@ On desktop, `svh` equals `vh` because there is no browser chrome that appears/di
 
 ---
 
+## 1b. Content-Length Stress Test (MANDATORY)
+
+Responsive correctness is not just viewport width. It is also content length.
+
+Before declaring a section/layout complete, verify at least these states:
+- **Short state:** one-line heading, short description
+- **Typical state:** realistic production copy
+- **Long state:** a long heading, long paragraph, long CTA/badge/label
+- **Populated state:** cards/tables/lists with real-looking content instead of blanks
+
+### Hard rules
+
+- **Do not use line-clamp on meaningful body copy by default.**
+- **Do not rely on fixed heights to hide overflow.**
+- **Do not treat giant empty areas as "breathing room" if they come from stretched components.**
+- **If a shell/sidebar layout exists, inspect the full page occupancy, not just the local section.**
+
+### Failure patterns to avoid
+
+- Main content pushed right by shell math or sidebar width
+- Uneven left/right gutters that make the page feel lopsided
+- Cards with 40%+ empty lower area because sibling matching forced them taller
+- Text containers with `overflow: hidden` masking the fact that content no longer fits
+
+When in doubt: content-driven height first, then refine.
+
+### Accessibility checks during responsive review
+
+- Keyboard focus must remain visible at every breakpoint.
+- Tap targets must remain comfortable on narrow mobile widths.
+- Reflow must not hide CTAs or labels behind sticky bars, browser chrome, or clipped containers.
+- Do not use motion, hover, or hidden overflow to conceal broken mobile states.
+
+---
+
 ## 2. Scroll-Snap for Section-Based Pages — CONDITIONAL
 
-Scroll-snap forces the browser to align sections to viewport boundaries after the user finishes scrolling. When it works, the user NEVER sees a half-section. But snap only works when ALL snapping sections fit within the viewport height. **Snap is conditional, not automatic.**
+Scroll-snap forces the browser to align sections to viewport boundaries after the user finishes scrolling. When it works, the user gets a deck-like slide experience. But snap only works when the content is intentionally low-density and every snapping section fits within the viewport height. **Snap is conditional, rare, and never automatic.**
 
 ### Decision tree: Should this page use scroll-snap?
 
-1. **New build (designing from scratch)?** Design each section to fit one viewport at ALL breakpoints (desktop 1280x800, tablet 768x1024, android-narrow 360x780, android-worst 360x668). If ALL sections fit → use `scroll-snap-type: y mandatory`. This delivers the best UX.
+1. **Is the page meant to feel like slides?** Use snap only for basic low-content landing pages, product showcases, deck/presentation flows, or simple campaign pages where each section is a self-contained panel. If the page benefits from natural reading, comparison, SEO depth, forms, pricing, or variable content → do not use snap.
 
-2. **Pre-existing site / variable-height content?** Measure every section at every breakpoint. If ANY section exceeds viewport height at ANY breakpoint → **DO NOT use snap globally.** Snap on tall sections traps users — they physically cannot scroll past the section because snap keeps pulling them back.
+2. **Can every snapping section fit?** Measure every section at every breakpoint. If ANY section exceeds viewport height at ANY breakpoint → **DO NOT use mandatory snap globally.** Snap on tall sections traps users because snap keeps pulling them back.
 
-3. **Mixed situation (most sections fit, 1-2 don't)?** Two options:
+3. **Mixed situation (most sections fit, 1-2 don't)?** Prefer natural scroll. If snap is still central to the concept, use one of these:
    - Exempt tall sections with `scroll-snap-align: none` on those specific sections. Adjacent sections still snap normally.
    - Use `scroll-snap-type: y proximity` instead of `mandatory` — snaps only when close to a boundary, doesn't trap users in tall sections.
 
 4. **GSAP-pinned sections?** Sections using GSAP ScrollTrigger `pin: true` MUST be exempted from snap (`scroll-snap-align: none`). The pin extends the section's scroll range far beyond viewport height — snap would fight the pin.
 
-### When ALL sections fit (use snap):
+### When snap is justified and all sections fit:
 
 ```css
 html {
@@ -67,7 +107,7 @@ section {
 }
 ```
 
-### When sections DON'T all fit (NO snap):
+### Default for most pages: natural scroll
 
 ```css
 /* No scroll-snap-type on html */
@@ -91,6 +131,7 @@ section {
 
 ### Anti-patterns
 
+- **NEVER add snap because the page has sections.** Sections alone do not justify snap.
 - **NEVER add snap to a page with variable-height sections without verifying fit at every breakpoint.** This is the #1 cause of broken mobile scroll.
 - **NEVER use `mandatory` snap with GSAP-pinned sections.** Pin extends scroll range → snap traps users.
 - **NEVER retrofit snap onto an existing site without measuring every section.** If the content wasn't designed for snap, snap will break the scroll experience.
@@ -101,16 +142,17 @@ Scroll-snap is a CSS-only, compositor-thread feature. It does not require JavaSc
 
 ---
 
-## 3. GSAP ScrollTrigger + Scroll-Snap Coexistence (ALL DEVICES)
+## 3. GSAP ScrollTrigger + Scroll-Snap Coexistence (Only If Snap Is Chosen)
 
 ### The conflict
 
 GSAP's `ScrollTrigger.snap` and CSS `scroll-snap-type` both try to control scroll position after the user stops scrolling. If both are active, they fight: CSS snap jumps to one position, GSAP tweens to another, CSS snap reacts to the tween, and the page oscillates or locks up. They are mutually exclusive snapping mechanisms.
 
-### The strategy: split by device
+### The strategy when advanced snap is intentionally chosen
 
-- **Desktop (769px+):** Use GSAP `ScrollTrigger.snap` for smooth, eased, animated snapping. Disable CSS `scroll-snap-type` via media query. GSAP snap runs on the main thread but desktop has enough CPU headroom.
-- **Mobile (<=768px):** Use CSS `scroll-snap-type: y mandatory` for compositor-thread snapping (zero jank, zero CPU cost). Keep GSAP ScrollTrigger for entrance animations (fade-in, slide-up) but do NOT use GSAP's `snap` property. The result is the same user experience — sections snap into view — but the mechanism differs by platform.
+- **Simplest path:** Use CSS snap on all devices and avoid GSAP snap entirely.
+- **Advanced desktop path:** Use GSAP `ScrollTrigger.snap` only when a deliberately eased desktop slide experience matters. Disable CSS `scroll-snap-type` via media query.
+- **Mobile:** Prefer CSS `scroll-snap-type` for compositor-thread snapping. Keep GSAP ScrollTrigger for light entrance/state animations only. Do NOT use GSAP's `snap` property on mobile.
 
 ```css
 /* Mobile: CSS scroll-snap (compositor thread, zero jank) */
@@ -160,9 +202,9 @@ On mobile with CSS snap, the viewport jumps directly to a section boundary. If t
 
 ---
 
-## 4. Lenis Configuration (DESKTOP vs MOBILE)
+## 4. Lenis Configuration (Only For Continuous Scroll)
 
-Lenis provides smooth, lerped scrolling that feels premium on desktop. However, Lenis intercepts native scroll events and does not support CSS `scroll-snap-type`. On mobile, where CSS scroll-snap is the snapping mechanism, Lenis must be disabled entirely.
+Lenis can make continuous-scroll editorial/marketing pages feel smoother on desktop. It is not a default. Do not use Lenis for dashboards, admin panels, forms, snap pages, or pages where native scroll behavior is expected.
 
 ```js
 if (window.matchMedia('(min-width: 769px)').matches) {
@@ -171,7 +213,7 @@ if (window.matchMedia('(min-width: 769px)').matches) {
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 }
-// Mobile: native scroll + CSS scroll-snap. No Lenis.
+// Mobile: native scroll. If snap was separately chosen, CSS handles it. No Lenis.
 ```
 
 ### Desktop pipeline
@@ -179,15 +221,15 @@ if (window.matchMedia('(min-width: 769px)').matches) {
 1. User scrolls (wheel/trackpad)
 2. Lenis intercepts the scroll event and applies lerped smooth scrolling
 3. Lenis fires `scroll` events that update GSAP ScrollTrigger
-4. GSAP ScrollTrigger handles snapping via its `snap` property
-5. GSAP ScrollTrigger fires entrance animations via individual triggers
+4. GSAP ScrollTrigger fires entrance animations or story choreography if selected
+5. No snap unless a separate slide-like scroll contract was chosen
 
 ### Mobile pipeline
 
 1. User swipes (touch)
 2. Browser handles scroll natively (compositor thread)
-3. CSS `scroll-snap-type: y mandatory` snaps to section boundaries
-4. GSAP ScrollTrigger fires entrance animations (no snap, just `toggleActions`)
+3. If snap was selected, CSS `scroll-snap-type` handles section alignment
+4. GSAP ScrollTrigger fires entrance animations only when useful (no GSAP snap on mobile)
 
 ### Why `lagSmoothing(0)`?
 
@@ -195,9 +237,9 @@ GSAP's default lag smoothing can cause Lenis's scroll position to desync from Sc
 
 ---
 
-## 5. Above-Fold CTA Content Budget (ALL DEVICES)
+## 5. Above-Fold Primary Action Budget
 
-The primary call-to-action button MUST be visible without scrolling on EVERY viewport size. This is the single most important conversion constraint.
+For marketing, landing, pricing, lead-gen, and product pages, the primary call-to-action should be visible without scrolling on normal first-load viewports. For app shells and dashboards, the equivalent is the primary task/action or key status.
 
 ### Available space by device
 
@@ -230,13 +272,24 @@ Design the hero to fit at 360x668. All larger viewports automatically have surpl
 }
 
 .hero__headline {
-  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-size: 3rem;
   line-height: 1.1;
 }
 
 .hero__subhead {
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-size: 1.15rem;
   line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .hero__headline {
+    font-size: 2rem;
+  }
+
+  .hero__subhead {
+    font-size: 1rem;
+  }
+}
 }
 ```
 
@@ -330,13 +383,23 @@ This is why `100svh` exists — it equals 668px when chrome is visible, not 780p
   overflow: hidden;
 }
 
-/* Font sizing that floors at readable on 360px */
+/* Font sizing that stays readable on 360px without viewport-width scaling */
 .heading {
-  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-size: 3rem;
 }
 
 .body-text {
-  font-size: clamp(1rem, 2.5vw, 1.125rem);
+  font-size: 1.125rem;
+}
+
+@media (max-width: 768px) {
+  .heading {
+    font-size: 1.75rem;
+  }
+
+  .body-text {
+    font-size: 1rem;
+  }
 }
 ```
 
@@ -368,8 +431,8 @@ With `overflow-wrap: normal`, the browser NEVER splits words. If a word doesn't 
 
 - **Headings (h1-h6):** Always `overflow-wrap: normal; word-break: normal; hyphens: none;`
 - **Body text (p, li, td):** Can use `overflow-wrap: break-word` — mid-word breaks in paragraphs are acceptable for long URLs or technical strings.
-- **If a heading overflows at narrow viewports:** Fix the design (reduce font-size via `clamp()`, shorten text, use `<br class="mobile-only">` for explicit break points). NEVER enable `break-word` on headings.
-- **Non-breaking spaces (`&nbsp;`):** NEVER use `&nbsp;` in headings. Use `<span style="white-space:nowrap">words to keep together</span>` instead. `&nbsp;` creates unbreakable units that can exceed viewport width, forcing mid-word breaks as a last resort.
+- **If a heading overflows at narrow viewports:** Fix the design (reduce font-size at breakpoints, shorten text, use `<br class="mobile-only">` for explicit break points). NEVER enable `break-word` on headings.
+- **Non-breaking spaces (`&nbsp;`):** NEVER use `&nbsp;` in headings. Use a CSS class such as `<span class="nowrap">words to keep together</span>` only when the phrase is guaranteed to fit. `&nbsp;` creates unbreakable units that can exceed viewport width, forcing mid-word breaks as a last resort.
 
 ### SplitType and text-splitting libraries (CRITICAL)
 

@@ -2,6 +2,8 @@
 
 Loaded during Phase 4 (Build). All CSS decisions flow from this file.
 
+Default accessibility target: **WCAG 2.2 AA**.
+
 ---
 
 ## 1. HARD RULE: Zero Inline CSS
@@ -67,6 +69,208 @@ style.textContent = items.map(function(_, i) {
 }).join('\n');
 document.head.appendChild(style);
 ```
+
+---
+
+## 4b. Layout Integrity Rules (Build-Time)
+
+These are structural defaults for avoiding broken "premium" layouts.
+
+### Layout safety defaults
+
+Every component must survive desktop and mobile without text escaping boxes or boxes colliding.
+
+```css
+* {
+  box-sizing: border-box;
+}
+
+.surface,
+.panel,
+.card,
+.button,
+.badge,
+.input,
+.chart-shell {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.button,
+.badge,
+.chip,
+.nav-item {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.media-frame,
+.chart-shell,
+.tile {
+  contain: layout paint;
+}
+```
+
+Use stable dimensions for fixed-format elements:
+
+```css
+.icon-button {
+  inline-size: 44px;
+  block-size: 44px;
+  flex: 0 0 44px;
+}
+
+.metric-tile {
+  min-block-size: 9rem;
+}
+
+.chart-shell {
+  min-block-size: clamp(220px, 32vw, 380px);
+}
+```
+
+Never hide overflow to mask a broken layout. If overflow is used, it must be part of a deliberate scroll/preview pattern.
+
+### Default to intrinsic sizing
+
+Start with content-driven layout before adding equal heights or stretch behavior.
+
+```css
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: start; /* NOT stretch by default */
+}
+
+.card {
+  height: auto;
+  min-height: 0;
+}
+```
+
+**Why:** `align-items: stretch` plus mismatched content lengths is a common cause of giant dead zones inside cards.
+
+### Do not clamp meaningful body copy by default
+
+```css
+/* GOOD: full readable copy */
+.card__body {
+  overflow: visible;
+  display: block;
+}
+
+/* ONLY when brief explicitly wants teaser cards */
+.card__excerpt {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+```
+
+If the user did not ask for teaser cards, narrative content should stay readable.
+
+### Prefer max-width centering for shells
+
+```css
+.app-shell__main {
+  width: min(100%, 1200px);
+  margin-inline: auto;
+}
+```
+
+Do not "center" a layout indirectly with arbitrary left padding or by eyeballing card positions while the shell itself is off-center.
+
+### Equal-height components require proof
+
+Only force equal-height cards when ALL are true:
+- the layout visually benefits from uniform rows
+- content lengths are genuinely comparable
+- the tallest state still looks intentional
+- the shortest state does not produce empty dead space
+
+If any of those fail, use content-driven height instead.
+
+---
+
+## 4c. Material Craft Defaults
+
+Use CSS tokens for the fine details that stop a page from feeling cheap.
+
+```css
+.section-band {
+  border-block: 2px solid var(--border-section, rgba(255,255,255,0.18));
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015)),
+    var(--bg-section);
+}
+
+.panel,
+.card,
+.media-frame {
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.hero-object,
+.primary-cta,
+.is-active {
+  box-shadow: var(--outline-glow);
+}
+
+.texture-layer {
+  opacity: var(--texture-opacity, 0.04);
+  pointer-events: none;
+}
+```
+
+Rules:
+- Use thicker section dividers or high-contrast bands when adjacent sections blend together.
+- Dark premium surfaces usually need visible rim light, border contrast, or glow. Flat dark cards with invisible borders fail.
+- Keep body text solid and crisp. Apply glow/sheen to containers, icons, CTAs, display headings, or major numbers.
+- Dense operational UI uses quieter borders and focus rings, not theatrical glow everywhere.
+
+---
+
+## 4d. Accessibility Baselines (Build-Time)
+
+Premium UI still has to be operable. These are defaults, not optional extras.
+
+### Focus visibility is mandatory
+
+```css
+:focus-visible {
+  outline: 2px solid var(--focus-ring, #2563eb);
+  outline-offset: 3px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+```
+
+Do not remove focus styles without replacing them with a clearly visible alternative.
+
+### Hover is additive, not required
+
+- If a card reveals essential content on hover, provide the same access on focus and touch.
+- If a button relies on color shift alone, add shape, underline, border, icon, or motion cue.
+
+### Minimum target sizing
+
+- Primary buttons, nav items, toggles, and icon controls should be comfortably tappable.
+- Do not shrink important controls to preserve a visual composition. Fix the layout instead.
+
+### Semantic-first components
+
+- Use `<button>` for actions, `<a>` for navigation, `<label>` for form labels, and real heading levels in order.
+- Icon-only buttons need an accessible name.
+- Decorative images should be ignored by assistive tech; meaningful images need alt text.
+
+### Contrast in real states
+
+- Check default, hover, focus, disabled, and overlay states.
+- Glass, gradients, textures, and image overlays frequently lower effective contrast. Judge the rendered result, not the raw token values.
 
 ---
 

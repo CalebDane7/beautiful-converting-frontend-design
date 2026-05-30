@@ -10,12 +10,57 @@ Select based on brand identity and project brief. Each technique includes copy-p
 - 3D Product → e-commerce, product launches, hardware (immersive, premium)
 - Product-as-Hero → beauty, food, consumer electronics (product-centered)
 - Luxury Dark → fashion houses, premium brands, high-end goods (cinematic, exclusive)
+- Tactile Editorial → modern brands that should feel human, crafted, warm, or anti-corporate-polish
 
 **Rules:**
 - Never combine more than 2 styles in one project
 - Neumorphism and glassmorphism are mutually exclusive (pick one)
 - Glitch effects: max 2-3 instances per page (overuse = cheap)
 - Brutalist type requires generous whitespace to avoid chaos
+- Tactile styles need restraint too — texture should deepen the page, not make it dirty or noisy
+
+---
+
+## 0. Tactile Editorial / Warm Tech
+
+Use when the brand should feel human, crafted, textured, or intentionally less machine-perfect. This is a current premium direction, not a fallback.
+
+Best for: creative tools, cultural brands, agencies, premium SaaS that wants warmth, consumer products that should feel touchable.
+
+### Core signals
+
+- warmer neutrals instead of stark white/black
+- subtle paper/noise/fabric texture
+- slightly imperfect framing, collage overlaps, or offset image crops
+- expressive serif + grotesk pairings
+- restrained motion with tactile reveals instead of cold sci-fi polish
+
+### CSS starting point
+
+```css
+:root {
+  --warm-bg: #f3efe6;
+  --warm-surface: rgba(255, 250, 242, 0.78);
+  --ink: #201a17;
+  --muted-ink: #645951;
+  --accent-earth: #b46a3c;
+  --accent-moss: #68735e;
+}
+
+.tactile-page {
+  background:
+    radial-gradient(circle at top, rgba(180, 106, 60, 0.12), transparent 35%),
+    linear-gradient(180deg, #f7f1e8 0%, #efe7db 100%);
+  color: var(--ink);
+}
+
+.tactile-surface {
+  background: var(--warm-surface);
+  border: 1px solid rgba(32, 26, 23, 0.08);
+  box-shadow: 0 18px 50px rgba(61, 45, 36, 0.08);
+  backdrop-filter: blur(12px);
+}
+```
 
 ---
 
@@ -229,10 +274,16 @@ Three layers: original text, `::before` (red channel), `::after` (cyan channel).
 ```css
 .glitch-text {
   position: relative;
-  font-size: clamp(3rem, 10vw, 8rem);
+  font-size: 6rem;
   font-weight: 900;
   color: #FFFFFF;
   letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+  .glitch-text {
+    font-size: 3rem;
+  }
 }
 
 .glitch-text::before,
@@ -463,12 +514,18 @@ Dharma Gothic, Anton, Passion One.
 ```css
 .brut-heading {
   font-family: 'Bebas Neue', 'Impact', sans-serif;
-  font-size: clamp(4rem, 15vw, 12rem);
+  font-size: 8rem;
   line-height: 0.85;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   text-transform: uppercase;
   margin: 0;
   padding: 0;
+}
+
+@media (max-width: 768px) {
+  .brut-heading {
+    font-size: 4rem;
+  }
 }
 ```
 
@@ -509,10 +566,16 @@ Dharma Gothic, Anton, Passion One.
 
 .brut-stacked__line {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(4rem, 12vw, 10rem);
+  font-size: 7rem;
   line-height: 0.85;
   text-transform: uppercase;
   position: relative;
+}
+
+@media (max-width: 768px) {
+  .brut-stacked__line {
+    font-size: 4rem;
+  }
 }
 
 /* Negative margin pulls lines into overlap */
@@ -533,8 +596,14 @@ Dharma Gothic, Anton, Passion One.
 ```css
 .brut-mixed-weight {
   font-family: 'Oswald', sans-serif;
-  font-size: clamp(2rem, 6vw, 5rem);
+  font-size: 4rem;
   text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .brut-mixed-weight {
+    font-size: 2rem;
+  }
 }
 
 .brut-mixed-weight .heavy {
@@ -554,7 +623,7 @@ HTML: `<h2 class="brut-mixed-weight"><span class="heavy">Break</span> <span clas
 ```css
 .brut-outline {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(4rem, 14vw, 11rem);
+  font-size: 8rem;
   text-transform: uppercase;
   -webkit-text-stroke: 2px currentColor;
   color: transparent;
@@ -564,12 +633,19 @@ HTML: `<h2 class="brut-mixed-weight"><span class="heavy">Break</span> <span clas
 /* Outline with fill on hover */
 .brut-outline-interactive {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(4rem, 14vw, 11rem);
+  font-size: 8rem;
   text-transform: uppercase;
   -webkit-text-stroke: 2px currentColor;
   color: transparent;
   transition: color 0.3s ease;
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .brut-outline,
+  .brut-outline-interactive {
+    font-size: 4rem;
+  }
 }
 
 .brut-outline-interactive:hover {
@@ -590,7 +666,7 @@ to create dramatic visual contrast.
 
 .brut-contrast-pair .condensed {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(5rem, 15vw, 12rem);
+  font-size: 8rem;
   display: block;
   letter-spacing: 0.05em;
 }
@@ -598,9 +674,19 @@ to create dramatic visual contrast.
 .brut-contrast-pair .expanded {
   font-family: 'Oswald', sans-serif;
   font-weight: 200;
-  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-size: 2.5rem;
   letter-spacing: 0.4em;
   display: block;
+}
+
+@media (max-width: 768px) {
+  .brut-contrast-pair .condensed {
+    font-size: 4rem;
+  }
+
+  .brut-contrast-pair .expanded {
+    font-size: 1.5rem;
+  }
 }
 ```
 
@@ -640,7 +726,7 @@ HTML:
 ### Spline Embed -- Iframe Approach (Simplest)
 
 ```html
-<div class="spline-container" style="width:100%;height:80vh;position:relative;">
+<div class="spline-container">
   <iframe
     src="https://my.spline.design/YOUR-SCENE-ID/"
     frameborder="0"
@@ -655,7 +741,7 @@ HTML:
 ### Spline Embed -- Runtime JS Approach
 
 ```html
-<canvas id="spline-canvas" style="width:100%;height:80vh;"></canvas>
+<canvas id="spline-canvas" class="spline-canvas"></canvas>
 <script type="module">
   import { Application } from 'https://unpkg.com/@splinetool/runtime@1.9.82/build/runtime.js';
 
@@ -670,7 +756,7 @@ HTML:
 Minimal GLTF model viewer with orbit controls, auto-rotate, and proper lighting.
 
 ```html
-<div id="product-viewer" style="width:100%;height:80vh;"></div>
+<div id="product-viewer" class="product-viewer"></div>
 
 <script type="module">
   import * as THREE from 'three';
@@ -748,6 +834,16 @@ Minimal GLTF model viewer with orbit controls, auto-rotate, and proper lighting.
     renderer.setSize(w, h);
   });
 </script>
+```
+
+```css
+.spline-container,
+.spline-canvas,
+.product-viewer {
+  width: 100%;
+  height: 80svh;
+  position: relative;
+}
 ```
 
 ### CSS-Only Floating Effect
@@ -972,11 +1068,17 @@ Strip the hero to the absolute essentials: brand logo (top), product name
 
 .hero-minimal-ui__product-name {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-size: 4rem;
   font-weight: 700;
   text-align: center;
   z-index: 10;
   letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+  .hero-minimal-ui__product-name {
+    font-size: 2.5rem;
+  }
 }
 
 .hero-minimal-ui__cta {
@@ -1034,10 +1136,16 @@ Product on one side, bold stacked text on the other.
 
 .hero-split__heading {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(3rem, 8vw, 7rem);
+  font-size: 5rem;
   line-height: 0.9;
   text-transform: uppercase;
   margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .hero-split__heading {
+    font-size: 3rem;
+  }
 }
 ```
 
@@ -1084,11 +1192,22 @@ with rotation for the connector lines.
 
 SVG alternative for more precise line routing:
 ```html
-<svg class="callout-lines" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;">
+<svg class="callout-lines">
   <!-- Line from product to label. Adjust x1,y1 (product point) and x2,y2 (label point) -->
   <line x1="50%" y1="30%" x2="80%" y2="15%" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
   <circle cx="50%" cy="30%" r="4" fill="var(--product-color-accent, #C47A4E)"/>
 </svg>
+```
+
+```css
+.callout-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
 ```
 
 ---
@@ -1353,12 +1472,18 @@ Putting it all together -- the layered approach for a luxury hero section:
 
 .lux-hero__title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(3rem, 8vw, 7rem);
+  font-size: 5rem;
   font-weight: 300;
   color: var(--lux-text);
   text-shadow: 0 0 60px rgba(255, 140, 0, 0.15);
   letter-spacing: 0.08em;
   margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .lux-hero__title {
+    font-size: 3rem;
+  }
 }
 
 .lux-hero__subtitle {

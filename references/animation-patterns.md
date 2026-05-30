@@ -4,6 +4,32 @@ Loaded during **Phase 5 (Animate)** of the beautiful-converting-frontend-design 
 All patterns are production-tested on erebora-umbrella. Use `var` (not `const`/`let`)
 for broadest compatibility in inline `<script>` blocks.
 
+Use this file after choosing the motion mode in `references/tool-decision-matrix.md`.
+
+---
+
+## 0. Motion Escalation Ladder
+
+Start at the lowest level that can deliver the concept.
+
+| Level | What It Means | Good For | Usually Wrong For |
+|---|---|---|---|
+| 0 | stateful microinteractions only | apps, dashboards, docs | campaign hero pages |
+| 1 | entrance choreography + layered reveals | SaaS/product/editorial | dense internal tooling |
+| 2 | depth systems, parallax, 3D transforms | portfolios, launches, storytelling pages | generic business pages with long copy |
+| 3 | immersive scene / WebGL-led experience | campaigns, experimental microsites | ordinary conversion pages |
+
+**Default:** Level 1. Escalate only with a reason.
+
+### 4-plane composition model
+
+- **Atmosphere plane:** gradients, grain, low-contrast particles
+- **Structure plane:** frames, large panels, beams, oversized shapes
+- **Content plane:** all readable UI and copy
+- **Accent plane:** highlights, orbitals, cursor-reactive light, badges
+
+Background planes may move more than content planes. If content itself feels unstable, the composition is wrong.
+
 ---
 
 ## 1. CDN Setup
@@ -322,10 +348,12 @@ if (nav && hero) {
 
 ## 7. Cursor Following Effects
 
-From erebora-umbrella production. Skipped entirely on touch devices.
+Ambient cursor-reactive light only. Do NOT replace the native cursor with a fake lagging blob.
+Skipped entirely on touch devices and should be removed if it causes measurable jank.
 
 ```javascript
-if (!('ontouchstart' in window) && navigator.maxTouchPoints === 0) {
+if (window.matchMedia('(pointer: fine)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   var hero = document.querySelector('.hero');
   var ticking = false;
 
@@ -393,6 +421,11 @@ if (!('ontouchstart' in window) && navigator.maxTouchPoints === 0) {
   opacity: 1;
 }
 ```
+
+**Rules:**
+- Never hide the native cursor.
+- Never apply cursor-reactive glow to every card on a dense page.
+- Keep it ambient and optional. If the page works better without it, remove it.
 
 ---
 
@@ -484,6 +517,12 @@ gsap.from(heading.chars, {
   }
 });
 ```
+
+### Use SplitType sparingly
+
+- Reserve per-character reveals for hero statements, pull quotes, or one signature moment.
+- Prefer line or word splitting for longer copy blocks.
+- If every heading uses SplitType, the page feels auto-generated.
 
 ---
 
@@ -811,6 +850,12 @@ geo.attributes.instanceAlpha.needsUpdate = true;
 - Pause with IntersectionObserver when hero scrolls off-screen
 - ~170KB for Three.js — justified for hero centerpiece, not for secondary elements
 
+### Escalation rule
+
+- Try CSS 3D + GSAP first for card stacks, type depth, and orbital motion.
+- Use Spline when a prepared scene is enough.
+- Use Three.js only when you need procedural control, custom particles, shader behavior, or scene choreography that simpler tools cannot deliver.
+
 ---
 
 ## 20. Enhanced Particle Systems (Canvas 2D)
@@ -838,6 +883,8 @@ p.alpha = p.baseAlpha * (0.6 + 0.4 * pulse);
 ```
 
 Desktop: 60 particles. Mobile: 25. Connection lines at 0.08 alpha (not 0.04).
+
+**Readability rule:** particles belong to the atmosphere plane, not behind body copy.
 
 ---
 

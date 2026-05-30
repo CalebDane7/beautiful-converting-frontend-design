@@ -2,12 +2,20 @@
 
 Loaded during Phase 1 for routing decisions. Every tool has a fallback — the skill produces genius output with ZERO external tools.
 
+Use this file to choose the surface type, motion mode, scroll behavior, and rendering stack before touching implementation.
+
 ---
 
 ## Decision Flow
 
 ```
 START → Is this a complete page from scratch?
+  ↓ First classify the page:
+    App/dashboard? → Motion Mode 0
+    SaaS / product marketing? → Motion Mode 1, usually natural scroll
+    Editorial / storytelling? → Motion Mode 1 or 2
+    Portfolio / campaign? → Motion Mode 2
+    Experimental microsite? → Motion Mode 3
   YES → Is Google Stitch available?
     YES → Use Stitch for initial generation → enhance with skill
     NO → Build manually with skill (full 6-phase workflow)
@@ -23,6 +31,47 @@ START → Is this a complete page from scratch?
         YES → Invoke marketing skills (copywriting, page-cro, marketing-psychology)
         NO → Default: Full 6-phase workflow
 ```
+
+---
+
+## Motion Stack Decision Tree
+
+Choose the lightest stack that can achieve the idea convincingly.
+
+| Need | Default Choice | Escalate To | Avoid When |
+|---|---|---|---|
+| Refined UI states, hover/focus/enter | CSS + GSAP | Rive | the state is simple and static |
+| Layered hero depth, card tilt, 3D text feel | CSS 3D + GSAP | Spline or Three.js | the page already has dense text or table content |
+| Interactive illustration with named states | Rive | custom canvas/WebGL | the team cannot maintain the asset |
+| Prebuilt hero scene with modest interaction | Spline | Three.js | mobile perf is weak or embed cost is unjustified |
+| Procedural particles, shader transitions, custom 3D choreography | Three.js / R3F | N/A | the effect is ornamental and CSS/Canvas can fake it |
+| Ambient particles / connective background | Canvas 2D | Three.js | text readability is at risk |
+| Slide-like low-content landing/deck flow | Native CSS scroll snap | GSAP snap on desktop only if deliberately needed | long/variable content, forms, pricing, dashboards, SEO pages |
+| Continuous editorial/product scroll | Native scroll | Lenis on desktop if polish materially helps | apps, forms, dashboards, snap pages |
+
+**Rule:** CSS 3D before Spline, Spline before Three.js, unless custom procedural behavior is the core of the experience.
+
+---
+
+## Site-Type Defaults
+
+| Site Type | Motion Mode | Default Stack | Notes |
+|---|---|---|---|
+| App/dashboard | 0 | CSS transitions + small GSAP accents | prioritize clarity, states, and shell balance |
+| SaaS / product marketing | 1 | CSS/GSAP + native scroll, optional Lenis | motion explains value; do not turn it into a movie |
+| Editorial / narrative | 1 or 2 | CSS/GSAP + optional Lenis + occasional Canvas/SVG | rhythm and pacing matter more than spectacle |
+| Portfolio / campaign | 2 | GSAP + Canvas / Spline / selective Three.js | allow stronger wow moments if performance survives |
+| Experimental microsite | 3 | Three.js / R3F or Spline + GSAP | only when the experience itself is the product |
+
+---
+
+## Hard Avoid Rules
+
+- Do not use Lenis on snap pages.
+- Do not use Three.js just to rotate a card or float icons.
+- Do not replace the native cursor. Ambient cursor-reactive glows are optional; fake cursors are not.
+- Do not add cinematic loader intros to ordinary business pages.
+- Do not route dashboards/admin pages into immersive motion modes unless the brief explicitly asks for it.
 
 ---
 

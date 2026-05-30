@@ -101,6 +101,36 @@ Target: 90+ PageSpeed Insights score.
 
 ---
 
+## Motion Budgets By Mode
+
+Pick a budget before implementing. If the concept does not fit the budget, lower the motion mode or simplify the effect.
+
+| Motion Mode | Typical Site Type | Max Simultaneous Animated Planes | Heavy Blur Zones | WebGL | Notes |
+|---|---|---:|---:|---|---|
+| 0 | app/dashboard/docs | 1-2 | 0-1 | avoid | prioritize state clarity and responsiveness |
+| 1 | SaaS/product/editorial | 2-3 | 1-2 | optional hero only | default mode for most projects |
+| 2 | portfolio/campaign | 3-4 | 2-3 | allowed if justified | wow moment should stay localized |
+| 3 | experimental microsite | 4 | 3 max | primary system allowed | only if perf is still credible on real hardware |
+
+### Hard limits
+
+- One WebGL scene per page is the default maximum.
+- One shader-heavy hero is acceptable; shader-heavy sections repeated down the page are not.
+- If FPS drops materially on mobile, remove the effect instead of keeping a degraded gimmick.
+- Large `backdrop-filter` zones count as heavy effects. Budget them the same way you budget WebGL.
+
+---
+
+## Mobile / Low-Power Fallback Rules
+
+- Detect `prefers-reduced-motion` and degrade before initializing expensive effects.
+- Reduce particle counts, blur radii, and parallax travel on mobile.
+- Disable pointer-reactive effects on coarse pointers and touch devices.
+- If using Spline/Three.js, cap DPR aggressively and offer a static poster or CSS fallback.
+- Dense app screens should remove ornamental continuous motion entirely on mobile.
+
+---
+
 ## JavaScript Performance
 
 - Passive event listeners: `{ passive: true }` for scroll/touch
@@ -147,4 +177,7 @@ observer.observe(document.getElementById('hero-canvas'));
 - [ ] Below-fold images: `loading="lazy"`, explicit dimensions
 - [ ] Animations: `transform`/`opacity` only
 - [ ] Canvas: paused off-screen, reduced on mobile
+- [ ] Motion mode selected and budget respected
+- [ ] Heavy effects removed or downgraded on mobile / low-power devices
+- [ ] No fake custom cursor / no forced intro loader
 - [ ] Run Lighthouse — target 90+
