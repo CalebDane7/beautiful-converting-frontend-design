@@ -424,6 +424,8 @@ Every section maps to this equation. Design maximizes the numerator, minimizes t
   7. Timeline (vertical with animated connector)
   8. Closing statement + next steps
 
+**PDF / rendered investor-deck builds** — when the deliverable is a downloadable **PDF deck that must open identically in any viewer** (Edge, Acrobat, Preview), not a scroll-through web page: the clarity/craft above still applies, but the HTML→Chrome→**lossless-image-PDF** pipeline (Edge renders Chrome's vector print output as blank white otherwise), real-screenshot cropping (avoid nested double-frames), the investor-grade diagram patterns (supply/demand disproportionality, directional flywheels, two-sides-one-core, sourced stats), the **no-overlap + no-clip** discipline, the brighter-accent-on-dark palette with stronger glow, and the render-and-READ verification gate are all codified in **`references/pdf-deck-playbook.md` — read it before building any exported/PDF deck.**
+
 ### How the Skill Decides
 
 - Phase 1 identifies project's brand maturity, audience, and goal
