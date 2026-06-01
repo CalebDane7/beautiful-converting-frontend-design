@@ -62,6 +62,7 @@ One signature diagram per concept replaces paragraphs. `<svg ... shape-rendering
 - **Copy constraints:** scan the **visible text only** (strip `<style>`, base64 data URIs, and code comments first — base64 blobs and WHY-comments cause false-positive keyword matches) for any framing the user excluded (e.g. a region the deck must stay global about).
 
 ## 9. Process & people
-- Expect **several review rounds**. Keep each version as a new file (`v2`, `v3`, …); never overwrite prior versions or the original.
+- Expect **several review rounds** — but keep **one** clearly-named "latest" deck and **archive** (move, never delete) superseded drafts into a subfolder. Never overwrite the user's original/source files. A new filename every revision is a trap: the user keeps reopening their already-open (stale) tab, sees no change, and gets (rightly) frustrated. One obvious latest file makes opening the wrong one impossible.
+- **Dead-simple for a non-expert.** Write every headline, label, and stat so an investor who knows *nothing* about the domain instantly gets it — "anyone can fund this without understanding the industry." If a slide needs insider knowledge to parse, rewrite it. Jargon and insider framing kill decks; plain words + one idea + one visual win.
 - The **team slide** should credit BOTH domain expertise AND building strength; don't imply a key builder is just a coder who'll be swapped out, or that only one founder understands the problem.
 - Carry the user's **locked positioning constraints** (global vs regional, preserve-meaning vs rewrite, the chosen hero line) across every regeneration — re-confirm each build.
