@@ -125,6 +125,7 @@ This is foundational. No animation, particle effect, background visual, or decor
 **Rules:**
 - **Text zones get opaque or near-opaque backgrounds.** If a section has body text, stats, cards, or any content meant to be read, the background behind it must provide sufficient contrast. Semi-transparent scrims (rgba with 0.85-0.95 opacity) let subtle depth peek through while keeping text crisp.
 - **Decoration-only zones can be transparent.** Hero sections where the animation IS the visual, or CTA sections with only large bold headings, can let effects show through. But even here, heading text must have enough size/weight to remain readable.
+- **Readability is LOCAL contrast, not a dark page.** What matters is the contrast between text and the surface DIRECTLY behind it — it must be near-opposite, like black-on-white or white-on-black. The overall background can be bright, colorful, busy, or even white; readability comes from each text element's *immediate* backing, not from dimming the whole page. So you do NOT fix a washed-out screen by darkening the entire background — you give each text element its own high-contrast plate: a dark (or light) scrim/section behind it, or a deep shadow around the text, so it stays legible no matter what's further back. **Bright text on a bright field** (white-on-neon, light-on-light, a label floating over a vivid gradient) is the failure. Fix it locally: darken the backing right behind the text (a deep shadow/plate/section, even a small one), or flip the text to a dark color — never rely on a globally dark background to carry it. Rule of thumb: every heading, number, label, and badge should still pass if you imagine the background behind it swapped for its brightest possible state.
 - **Never match decoration color to text color.** Teal particles behind teal text = unreadable. Red particles behind red text = unreadable. If the animation color matches the text color in a section, either change the animation color, add a scrim, or make the section opaque.
 - **Small text (< 18px) gets full protection.** Body copy, descriptions, labels, and footer links must NEVER compete with background animations. Only large headings (32px+, bold weight) can coexist with active backgrounds.
 - **Test with screenshots, not assumptions.** Always capture and visually inspect the actual rendered page. Text that looks fine in code can be invisible when particles, gradients, or effects overlap in the browser.
@@ -248,7 +249,7 @@ Phase 3: STRUCTURE
   Build complete page architecture with copy
 
 Phase 4: BUILD
-  Read references/css-architecture.md + references/performance.md + references/visual-styles.md + references/responsive-sections.md
+  Read references/css-architecture.md + references/performance.md + references/visual-styles.md + references/responsive-sections.md + references/premium-buttons.md (real 3D tactile buttons for CTAs/key controls)
   Select visual style(s) matching the brand (neumorphism, brutalist, luxury dark, etc.)
   Apply Phase 4 construction invariants before styling polish
   Implement HTML + CSS with no `style=` attributes; use classes, variables, and tokenized selectors
@@ -550,6 +551,7 @@ Before any code, commit to a direction:
 | 40 | Thin invisible borders and weak section separation | Sections collapse together and the page feels unfinished | Use visible contrast bands, thicker outlines, inset borders, dividers, or material shifts |
 | 41 | No glow/sheen on luminous premium surfaces | Dark premium work reads flat and underlit | Add controlled glow to primary CTA, hero object, active state, or display text; keep body text solid |
 | 42 | Scroll snap because the page has sections | Snap becomes a gimmick and breaks variable content | Use snap only for low-content slide-like pages that fit every viewport |
+| 43 | Flat lifeless buttons on a premium/expressive surface | The #1 cheap tell — a styled rectangle reads as a placeholder, not a control | Real 3D tactile button: visible rim/edge, hover lift + specular, fast press that collapses the rim, asymmetric timing. See `references/premium-buttons.md` |
 
 ---
 
@@ -885,6 +887,33 @@ The "golden palace" feel is **warm white with champagne/platinum sheens** — NO
 
 ---
 
+## 6g. Premium 3D Buttons — Tactile, High-Class, Animated
+
+> Read `references/premium-buttons.md` for full CSS recipes, timing, and accessibility.
+
+### When to Apply
+
+Apply real 3D tactile buttons to **primary CTAs, hero actions, and key interactive controls** on
+premium/expressive surfaces (dark luxury, fintech, product, campaign). Buttons should feel like
+physical high-tech controls — visible depth, a hover that lifts and catches light, and a **tactile
+press that slams down**. Skip for dense toolbars, table-row actions, and tertiary links where flat
+is correct. A flat fill with a color-change hover is the #1 cheap tell on a premium surface.
+
+### The Core Technique (3 states + asymmetric timing)
+
+1. **Rest** — raised, with a visible **3D edge/rim** (a hard colored `box-shadow` below the button).
+2. **Hover** — `translateY` lift + `brightness(1.08)` + a specular glare sweep; the rim grows.
+3. **Press (`:active`)** — fast slam-down (~34ms) that **collapses the rim** → a real tactile click.
+
+The tactile secret is **asymmetric timing**: lightning press (~34ms), springy hover rise (~220ms,
+`cubic-bezier(0.3,0.7,0.4,1.5)` overshoot), leisurely settle (~600ms) — same duration everywhere
+reads lifeless. Default = single-element chunky hard-3D push (upgrades a plain `<button>`, no extra
+markup); Josh-Comeau front/edge/shadow when you control the markup; neumorphic press for soft/calm
+surfaces. Token-driven colors, real `<button>`, `:focus-visible`, ≥44px target, and reduced-motion
+keeps the depth static. Full recipes in `references/premium-buttons.md`.
+
+---
+
 ## 7. Self-Review Quality Gate (MANDATORY)
 
 All points must pass BEFORE showing ANY output to the user:
@@ -905,6 +934,12 @@ All points must pass BEFORE showing ANY output to the user:
 
 === ICONS (NEW — Anti-Pattern #20) ===
 [ ] ICON-QUALITY — Zero emoji icons used as UI elements? Grep HTML for emoji Unicode (U+1F000–U+1FFFF). All functional icons must be SVG (inline, Heroicons, or Lucide). Emoji in body copy is fine — emoji as card/section icons = FAIL.
+
+=== BUTTONS (NEW — Anti-Pattern #43) ===
+[ ] BTN-3D     — Primary CTA + key buttons have real tactile depth (a visible 3D rim/edge), not a flat fill, on premium/expressive surfaces? See references/premium-buttons.md.
+[ ] BTN-STATES — Hover (lift + brightness), active (fast press that collapses the rim), focus-visible, and disabled states all covered — not entrance-only?
+[ ] BTN-MOTION — Press is fast (≤40ms) with a springy hover rise and a slower settle (asymmetric timing)? Only transform/box-shadow/filter animated? Reduced-motion keeps the depth, drops the press motion?
+[ ] BTN-A11Y   — Real <button>/<a> (never a styled div), visible focus ring, touch target ≥44px?
 
 === ANIMATION ===
 [ ] MODE        — Motion mode selected explicitly and appropriate for site type? Mode 0/1/2/3 justified?
@@ -939,6 +974,7 @@ All points must pass BEFORE showing ANY output to the user:
 [ ] SPACE-USAGE — No stretched cards, giant empty gutters, dead zones, or equal-height artifacts that create obvious wasted space.
 [ ] LIVE-STATES — Test the longest/populated/realistic content state, not just placeholder-short copy. Cards, tables, badges, and narrative boxes must still hold up.
 [ ] LAYERS      — Depth uses intentional planes (background / structure / content / accent) rather than random overlapping effects.
+[ ] LOCAL-CONTRAST — Does every text element (heading, number, label, badge) have near-opposite contrast against its IMMEDIATE backing — a dark/light scrim, plate, section, or deep shadow right behind it — so it stays readable even if the background behind it is bright? No bright-on-bright text? (Fix readability locally around the text, not by dimming the whole page.)
 
 === CSS LOADING ORDER (Anti-Patterns #29-31) ===
 [ ] LOADING-SHELL  — If a loading.tsx/Suspense fallback exists, does it include the same outermost shell/wrapper classes as the page? CSS :has() rules that depend on these classes (sidebar hide, theme switch) must fire during loading phase too.

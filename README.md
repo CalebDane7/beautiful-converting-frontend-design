@@ -1,147 +1,149 @@
 # Beautiful Converting Frontend Design
 
-A Claude Code skill that produces premium, conversion-optimized frontend interfaces. Every output fuses Hormozi conversion architecture with GSAP/Lenis/ScrollTrigger animations, OSMO-level techniques, and cutting-edge visual design.
+Build frontend work that looks expensive, converts clearly, and survives real
+browser proof.
 
-**This is not a template generator.** It's an opinionated design system that enforces quality through a mandatory 12-point gate — no generic output ever reaches the user.
+This Claude Code skill turns a rough frontend brief into a context-matched
+visual direction, conversion-aware page structure, premium typography, tactile
+controls, responsive layouts, and a mandatory acceptance gate. It is built for
+agents that usually make one of two mistakes: ship a generic template, or add
+visual effects that make the page harder to use.
 
-## Copyright
-
-Copyright (c) 2026 Caleb Dane. All rights reserved.
+The skill prevents both.
 
 ## What It Does
 
-Give it a brief ("build a landing page for X") and it produces complete, production-ready HTML + CSS + JS with:
+- Audits the product, audience, flow, assets, copy, and existing UI before
+  choosing a visual direction.
+- Challenges the brief when the requested surface, layout, or motion choice
+  would weaken clarity or conversion.
+- Builds around a design story, not a copied trend or one-size-fits-all palette.
+- Uses Hormozi-style conversion structure when the page needs to sell, but keeps
+  operational tools quiet, dense, and usable.
+- Chooses GSAP, Lenis, ScrollTrigger, WebGL, scroll snap, and cinematic effects
+  only when they serve the surface.
+- Enforces premium craft: visible section separation, stronger borders, material
+  depth, texture, glow, refined type, and local text contrast.
+- Adds real tactile depth to primary CTAs and key buttons instead of flat
+  rectangles with a color-change hover.
+- Requires rendered visual proof across desktop and mobile before the work is
+  considered done.
 
-- Distinctive typography (never Inter/Roboto/Arial)
-- Scroll-triggered GSAP animations on every section
-- Lenis smooth scrolling
-- Conversion-optimized page architecture
-- Zero inline CSS — everything in classes and variables
-- PageSpeed 90+ performance targets
-- Accessibility baked in (`prefers-reduced-motion`, semantic HTML, focus indicators)
+## Why It Is Different
 
-## What's Included
+Most frontend-design skills optimize for a look. This one optimizes for the
+decision the user needs to make.
 
-```
-SKILL.md                              # Core skill definition (300+ lines)
+The original approach was useful, but too deterministic: heavy motion by
+default, GSAP/Lenis as a habit, and broad premium styling rules that could make
+very different products feel similar. This version is stricter where quality
+matters and freer where taste matters.
+
+### Improvements Over The Original
+
+| Improvement | Why It Matters |
+|-------------|----------------|
+| Audience-first workflow | The agent designs for the buyer, user, device, and context instead of starting with effects. |
+| Challenge pass | The agent must question weak briefs before building the wrong thing beautifully. |
+| Situational motion router | GSAP, Lenis, snap, WebGL, and rich animation are choices, not defaults. |
+| Design-story requirement | The visual system has to express the product's real mechanism, not a trend moodboard. |
+| Stronger material craft | Borders, outlines, section bands, texture, glow, and depth stop premium pages from feeling flat. |
+| Premium typography rules | Fonts are selected by market, price point, density, and brand maturity instead of lazy defaults. |
+| Local contrast rule | Text must be readable against the surface directly behind it, not merely on a dark page. |
+| Tactile button system | Primary actions get real 3D edges, hover lift, specular sheen, and fast press feedback where appropriate. |
+| Mobile and layout safety | Text, buttons, cards, badges, grids, and fixed-format UI must fit at real mobile widths. |
+| Visual acceptance contract | Screenshots and rendered proof are part of the gate, not optional polish. |
+
+## Best Use Cases
+
+- SaaS landing pages and product pages that need conversion clarity.
+- Premium brand, music, fashion, creator, and campaign surfaces that need a
+  distinctive visual identity.
+- Startup homepages that need the offer understood in five seconds.
+- In-app onboarding, upgrade, or tool surfaces where usability and polish both
+  matter.
+- Existing frontend work that looks flat, generic, low-contrast, or AI-made.
+
+## What Is Included
+
+```text
+SKILL.md
 references/
-  design-system-generator.md          # Design tokens, fonts, colors, spacing
-  css-architecture.md                 # CSS structure, glassmorphism, backgrounds
-  animation-patterns.md               # GSAP, ScrollTrigger, Lenis, Three.js, Canvas
-  osmo-techniques.md                  # 9 categories of Awwwards-quality animations
-  conversion-framework.md             # Hormozi value equation, 9-section page flow
-  performance.md                      # Core Web Vitals, critical rendering path
-  visual-styles.md                    # Premium visual styles (NEW)
-  tool-decision-matrix.md             # When to use Stitch, 21st.dev, uipro-cli
+  conversion-framework.md
+  design-system-generator.md
+  css-architecture.md
+  responsive-sections.md
+  premium-frontend-quality-spec.md
+  premium-typography.md
+  premium-buttons.md
+  scene-plate-playbook.md
+  visual-acceptance-review.md
+  skill-regression-spec.md
+  animation-patterns.md
+  osmo-techniques.md
+  performance.md
+  visual-styles.md
+  tool-decision-matrix.md
+  3d-spatial-depth.md
+  image-to-3d-environment-workflow.md
+  pdf-deck-playbook.md
 scripts/
-  google_stitch.py                    # Google Stitch CLI wrapper
-  twenty_first.py                     # 21st.dev component library CLI
+  google_stitch.py
+  twenty_first.py
 ```
 
-## 4 Conversion Styles
+## The Quality Gate
 
-| Style | Use For | Approach |
-|-------|---------|----------|
-| **Hormozi/ClickFunnels** (default) | SaaS, lead gen, product launches, SMB | Dream outcome headlines, value stacking, 9-section flow |
-| **Brand/Aspirational** | Luxury, fashion, hardware, beauty | Product as hero, minimal copy, 5-section flow |
-| **Editorial/Technical** | Dev tools, B2B, APIs | Long-form storytelling, technical precision |
-| **Community/Social** | Platforms, marketplaces | User-generated proof, social validation |
+Before delivery, the agent must prove:
 
-## 6 Visual Styles (references/visual-styles.md)
+- The page has a clear primary action and hierarchy.
+- The visual direction fits the audience and product.
+- Typography and palette are deliberate, not defaults.
+- Primary CTAs and key controls have the right depth and states for the surface.
+- Text remains readable through local contrast, scrims, plates, or shadows.
+- Layouts hold up on mobile and desktop without overflow or accidental overlap.
+- Motion helps comprehension, trust, desire, or feedback.
+- Accessibility is covered with semantic controls, visible focus, reduced
+  motion, and touch target safety.
+- Rendered screenshots confirm the result instead of relying on code inspection.
 
-Copy-paste CSS/JS recipes for premium design techniques:
+## Install
 
-| Style | Best For | Key Technique |
-|-------|----------|---------------|
-| **Neumorphism** | Wellness, fintech, utility apps | Soft dual box-shadows, no backdrop-filter |
-| **Glitch Effects** | Tech, gaming, streetwear, crypto | RGB channel split, clip-path slicing |
-| **Brutalist Typography** | Fashion, music, editorial | 15vw+ headings, rotated/overlapping text |
-| **3D Product Integration** | E-commerce, hardware, beauty | Spline embeds, Three.js GLTF viewers |
-| **Product-as-Hero** | Beauty, food, consumer electronics | Product fills 60%+ viewport |
-| **Luxury Dark** | Fashion houses, premium brands | Near-black + selective warm glow |
+Clone or copy this directory into your Claude skills folder:
 
-## 7 Design Principles
-
-1. **Premium by Default** — distinctive fonts, depth through glass/grain/gradients
-2. **Conversion-Aware** — every visual decision has a conversion implication
-3. **Motion-Rich** — GSAP scroll-triggered animation on every section
-4. **Distinctive** — if it could belong to any brand, it belongs to none
-5. **Restrained** — fewer elements, more impact; 60-30-10 color ratio
-6. **Zero Inline CSS** — everything in classes and CSS variables
-7. **Fast** — PageSpeed 90+, LCP < 2.5s, only animate transform/opacity
-
-## 12-Point Quality Gate
-
-Every output must pass ALL 12 before delivery:
-
-- [ ] **FONT** — distinctive, recognizable
-- [ ] **COLOR** — unexpected palette
-- [ ] **THEME** — intentional dark/light/custom choice
-- [ ] **GSAP** — every section animated
-- [ ] **LENIS** — smooth scroll initialized
-- [ ] **CONVERSION** — follows chosen style
-- [ ] **COPY** — clear, specific, no hedging
-- [ ] **CTA** — above fold, highest contrast
-- [ ] **DEPTH** — 2+ visual layers
-- [ ] **WOW** — at least one Awwwards-worthy moment
-- [ ] **AI-SMELL** — would someone detect AI? If yes, fix
-- [ ] **A11Y** — reduced-motion, focus indicators, semantic HTML
-
-## 19 Anti-Patterns
-
-Things this skill will never do:
-
-1. Use Inter/Roboto/Arial
-2. Purple gradient on white
-3. Glass on every element
-4. Static flat backgrounds
-5. Even color distribution
-6. Pure black (#000)
-7. Animations everywhere without rhythm
-8. Stock photos
-9. Vague copy
-10. CTA buried below fold
-11. Ignore mobile performance
-12. Same fonts every project
-13. Inline CSS
-14. Render-blocking JS
-15. Center everything
-16. Uniform card grids
-17. Generic hero text
-18. No reduced-motion respect
-19. Same visual style every project
-
-## Animation Stack
-
-Every project includes (via CDN, deferred):
-
-- **Lenis** — smooth scroll with GSAP sync
-- **GSAP + ScrollTrigger** — scroll-triggered reveals, parallax, counters
-- **SplitType** — character/word-level text animations
-- **BarbaJS** — page transitions (multi-page only)
-
-## Optional Tool Integrations
-
-| Tool | Purpose |
-|------|---------|
-| Google Stitch | Layout inspiration + visual prototyping |
-| 21st.dev | Pre-built component library |
-| uipro-cli | Industry-specific design tokens |
-
-The skill produces excellent output with zero external tools. These are enhancements only.
-
-## Usage
-
-This is a [Claude Code](https://claude.com/claude-code) skill. Place the directory in `~/.claude/skills/` and invoke it when building frontend interfaces.
-
-```
-~/.claude/skills/beautiful-converting-frontend-design/
+```bash
+mkdir -p ~/.claude/skills
+git clone https://github.com/CalebDane7/beautiful-converting-frontend-design.git \
+  ~/.claude/skills/beautiful-converting-frontend-design
 ```
 
-Claude Code will automatically load the skill when frontend design work is detected, or you can invoke it directly.
+Claude Code can load the skill automatically when frontend design work is
+detected, or you can invoke it directly by name:
+
+```text
+Use the beautiful-converting-frontend-design skill to redesign this page.
+```
+
+## Mantis Distribution
+
+This skill is also packaged into the Hybrid Mantis runtime bundle, so Mantis
+users receive the same current snapshot through the protected bundle update
+lane.
+
+Maintainer release flow:
+
+```bash
+git push origin main
+/home/cabule/.ai-controller-repo/install/maintainer-publish-bundle.sh \
+  --repo-dir /home/cabule/.ai-controller-repo --force
+mantis update --auto
+mantis doctor
+```
 
 ## License
 
 Copyright (c) 2026 Caleb Dane. All rights reserved.
 
-This software is proprietary. No permission is granted to copy, modify, distribute, or use this software without explicit written consent from the copyright holder.
+This software is proprietary. No permission is granted to copy, modify,
+distribute, or use this software without explicit written consent from the
+copyright holder.

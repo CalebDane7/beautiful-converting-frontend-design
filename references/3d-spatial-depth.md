@@ -2302,7 +2302,7 @@ When the photo-plate albedo needs higher resolution, do not run it through:
 - **Clarity-Upscaler** — produces edge artifacts ("really weird and many strange artifacts" — user verbatim 2026-04-28).
 - **Remini-Upscaler** — outputs lossy 1024x768 JPEG regardless of `--scale` flag, defeating the purpose.
 
-If a photo plate needs sharper detail, regenerate at native resolution from the source model (Nano-Banana-Pro 1792x768 or 1024x1792 native), or render the plate at the camera's pixel-resolved size and skip upscaling entirely. The `~/.claude-profiles/calebdanemusic/skills/poe-media/references/scene-plate-playbook.md` carries the locked BLACKLIST as the authoritative source.
+If a photo plate needs sharper detail, regenerate at native resolution from the source model (Nano-Banana-Pro 1792x768 or 1024x1792 native), or render the plate at the camera's pixel-resolved size and skip upscaling entirely. The bundled `references/scene-plate-playbook.md` carries the locked BLACKLIST as the authoritative source.
 
 
 ---

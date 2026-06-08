@@ -29,7 +29,7 @@ Ask the user, via `AskUserQuestion` or natural prompt, for one of:
 
 Hand off to the poe-media skill with:
 - Reference image (if provided) as `--ref`
-- Aesthetic-locked prompt drawn from `~/.claude-profiles/calebdanemusic/skills/poe-media/references/scene-plate-playbook.md`
+- Aesthetic-locked prompt drawn from `references/scene-plate-playbook.md`
 - Output to a local generated-media or project asset folder, then mirror/copy to the user's chosen review location when visual inspection is needed
 - Use **Nano-Banana-Pro** (Poe API ~500 pts) for 4K text-accuracy + cinematic detail. NOT Nano-Banana basic. NOT TopazLabs/Clarity/Remini upscalers (locked BLACKLIST per existing playbook).
 
